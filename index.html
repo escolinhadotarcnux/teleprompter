@@ -147,6 +147,52 @@
     }
     .color-btn.active { border-color: #fff; }
 
+    /* Toggle switch styles */
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toggle-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 44px;
+      height: 26px;
+      background: #333;
+      border-radius: 13px;
+      cursor: pointer;
+      position: relative;
+      border: none;
+      outline: none;
+      transition: background 0.3s;
+    }
+
+    .toggle-checkbox::before {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: left 0.3s;
+    }
+
+    .toggle-checkbox:checked {
+      background: #555;
+    }
+
+    .toggle-checkbox:checked::before {
+      left: 20px;
+    }
+
+    .toggle-label {
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
     #startBtn {
       margin-top: 1.25rem;
       width: 100%;
@@ -187,6 +233,9 @@
       width: 100%;
       top: 0;
       padding: 60px 28px 260px;
+    }
+
+    #scroll-container.mirrored {
       transform: scaleX(-1);
     }
 
@@ -291,6 +340,14 @@
         <div class="color-btn" data-color="#ccddff" style="background:#ccddff;" title="Azul claro"></div>
       </div>
     </div>
+
+    <div class="setting-card" style="grid-column: 1 / -1;">
+      <div class="setting-label">Modo de exibição</div>
+      <div class="toggle-switch">
+        <input type="checkbox" id="mirrorToggle" class="toggle-checkbox" checked />
+        <span class="toggle-label" id="mirrorLabel">Espelho (invertido)</span>
+      </div>
+    </div>
   </div>
 
   <button id="startBtn">▶ Iniciar Teleprompter</button>
@@ -300,7 +357,7 @@
 <!-- PROMPTER -->
 <div id="prompter">
   <div id="progress-bar"></div>
-  <div id="scroll-container">
+  <div id="scroll-container" class="mirrored">
     <div id="prompt-text"></div>
   </div>
   <div id="ctrl-bar">
@@ -308,6 +365,7 @@
     <button class="cb" id="slowerBtn">− Lento</button>
     <span id="vel-display">vel 3</span>
     <button class="cb" id="fasterBtn">+ Rápido</button>
+    <button class="cb" id="mirrorBtn">🔄 Espelho</button>
     <button class="cb" id="stopBtn">✕ Sair</button>
   </div>
 </div>
@@ -317,9 +375,15 @@
   const fontSlider  = document.getElementById('fontSlider');
   const speedVal    = document.getElementById('speedVal');
   const fontVal     = document.getElementById('fontVal');
+  const mirrorToggle = document.getElementById('mirrorToggle');
+  const mirrorLabel = document.getElementById('mirrorLabel');
 
   speedSlider.addEventListener('input', () => speedVal.textContent = speedSlider.value);
   fontSlider.addEventListener('input',  () => fontVal.textContent  = fontSlider.value);
+
+  mirrorToggle.addEventListener('change', () => {
+    mirrorLabel.textContent = mirrorToggle.checked ? 'Espelho (invertido)' : 'Normal (leitura)';
+  });
 
   let textColor = '#ffffff';
   document.querySelectorAll('.color-btn').forEach(btn => {
@@ -334,6 +398,7 @@
   let speed   = 3;
   let running = false;
   let animId  = null;
+  let isMirrored = true;
 
   function maxScroll() {
     const sc = document.getElementById('scroll-container');
@@ -365,15 +430,23 @@
 
     speed = parseInt(speedSlider.value);
     const fontSize = parseInt(fontSlider.value);
+    isMirrored = mirrorToggle.checked;
 
     const pt = document.getElementById('prompt-text');
     pt.textContent = text;
     pt.style.fontSize = fontSize + 'px';
     pt.style.color = textColor;
 
+    const sc = document.getElementById('scroll-container');
+    if (isMirrored) {
+      sc.classList.add('mirrored');
+    } else {
+      sc.classList.remove('mirrored');
+    }
+
     document.getElementById('vel-display').textContent = 'vel ' + speed;
     scrollY = 0;
-    document.getElementById('scroll-container').style.top = '0px';
+    sc.style.top = '0px';
     document.getElementById('progress-bar').style.width = '0%';
     document.getElementById('playPauseBtn').textContent = '⏸ Pausar';
 
@@ -410,6 +483,18 @@
   document.getElementById('fasterBtn').addEventListener('click', () => {
     if (speed < 12) speed++;
     document.getElementById('vel-display').textContent = 'vel ' + speed;
+  });
+
+  document.getElementById('mirrorBtn').addEventListener('click', () => {
+    isMirrored = !isMirrored;
+    const sc = document.getElementById('scroll-container');
+    if (isMirrored) {
+      sc.classList.add('mirrored');
+      document.getElementById('mirrorBtn').textContent = '🔄 Normal';
+    } else {
+      sc.classList.remove('mirrored');
+      document.getElementById('mirrorBtn').textContent = '🔄 Espelho';
+    }
   });
 
   document.getElementById('stopBtn').addEventListener('click', () => {
