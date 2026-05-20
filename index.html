@@ -297,6 +297,13 @@
       min-width: 44px;
     }
 
+    #font-display {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.78rem;
+      text-align: center;
+      min-width: 44px;
+    }
+
     /* landscape hint */
     @media (orientation: landscape) and (max-height: 500px) {
       #ctrl-bar { padding: 8px 16px; }
@@ -365,6 +372,9 @@
     <button class="cb" id="slowerBtn">− Lento</button>
     <span id="vel-display">vel 3</span>
     <button class="cb" id="fasterBtn">+ Rápido</button>
+    <button class="cb" id="smallerBtn">− Menor</button>
+    <span id="font-display">38px</span>
+    <button class="cb" id="largerBtn">+ Maior</button>
     <button class="cb" id="mirrorBtn">🔄 Espelho</button>
     <button class="cb" id="stopBtn">✕ Sair</button>
   </div>
@@ -396,6 +406,7 @@
 
   let scrollY = 0;
   let speed   = 3;
+  let fontSize = 38;
   let running = false;
   let animId  = null;
   let isMirrored = true;
@@ -429,7 +440,7 @@
     if (!text) { alert('Cole seu roteiro antes de iniciar.'); return; }
 
     speed = parseInt(speedSlider.value);
-    const fontSize = parseInt(fontSlider.value);
+    fontSize = parseInt(fontSlider.value);
     isMirrored = mirrorToggle.checked;
 
     const pt = document.getElementById('prompt-text');
@@ -445,6 +456,7 @@
     }
 
     document.getElementById('vel-display').textContent = 'vel ' + speed;
+    document.getElementById('font-display').textContent = fontSize + 'px';
     scrollY = 0;
     sc.style.top = '0px';
     document.getElementById('progress-bar').style.width = '0%';
@@ -483,6 +495,22 @@
   document.getElementById('fasterBtn').addEventListener('click', () => {
     if (speed < 12) speed++;
     document.getElementById('vel-display').textContent = 'vel ' + speed;
+  });
+
+  document.getElementById('smallerBtn').addEventListener('click', () => {
+    if (fontSize > 20) {
+      fontSize -= 2;
+      document.getElementById('prompt-text').style.fontSize = fontSize + 'px';
+      document.getElementById('font-display').textContent = fontSize + 'px';
+    }
+  });
+
+  document.getElementById('largerBtn').addEventListener('click', () => {
+    if (fontSize < 80) {
+      fontSize += 2;
+      document.getElementById('prompt-text').style.fontSize = fontSize + 'px';
+      document.getElementById('font-display').textContent = fontSize + 'px';
+    }
   });
 
   document.getElementById('mirrorBtn').addEventListener('click', () => {
